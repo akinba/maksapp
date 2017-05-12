@@ -17,8 +17,50 @@
 <div id="map"></div>
 
 <script type="text/javascript">
-	
-	
+	var map = new ol.Map({
+		target: 'map',
+		layers: [
+		    basemap= new ol.layer.Tile({
+		    	source: new ol.source.OSM()
+		    })
+		],
+	    view: new ol.View({
+	    	projection: 'EPSG:4326',
+	     	center: [29.06,40.97], //ol.proj.fromLonLat([26.96, 39.59]),
+	     	zoom: 18
+	    }),
+	    controls: ol.control.defaults({
+          zoom: true,
+          attribution: false,
+          rotate: false
+        })
+	});
+	map.addControl(new ol.control.MousePosition());
+
+
+    <% tables.forEach(function(table) { %>
+    	var <%=table%>Features = new ol.Feature({});
+    	var <%=table%>Source  = new ol.source.Vector({
+    		features: <%=table%>Features
+    	});
+    	var <%=table%>Layer = new ol.layer.Vector({
+    		projection: 'EPSG:4326',
+    		source: <%=table%>Source
+    	});
+    	map.addLayer(<%=table%>Layer);
+    <%});%>
+</script>
+<script type="text/javascript">
+	var socket=io();
+	map.on("moveend",function(){
+		<% tables.forEach(function(table){ %>
+			//<%-table%>
+			socket.emit('getyapi', map.getView().calculateExtent());
+		<% }); %>
+		//socket.emit('bbox', map.getView().calculateExtent());
+		//$("#bina").find(".circle.loading.icon").addClass("notched");
+	});
+
 </script>
 
 </body>
