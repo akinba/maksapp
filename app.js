@@ -31,7 +31,7 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 db.yapi = require('./models/yapi.js')(sequelize, Sequelize);
 //db.kapi = require('./models/kapi.js')(sequelize, Sequelize);
-db.sequelize.sync({force: true});
+db.sequelize.sync({force: false});
 
 //publish index page with attributes
 app.get('/',(req,res)=>{
@@ -55,12 +55,19 @@ io.on('connection',(socket)=>{
 				}
 			}
 		}).then((rows)=>{
-			console.log(rows);
-/*			var binaGJ={"type":"FeatureCollection","features":[]};
+			var geoJson={"type": "FeatureCollection", "features": []};
 			rows.forEach((row)=>{
-				binaGJ.features.push(row.dataValues);
+				var geometry= row.dataValues.geom;
+				delete row.dataValues.geom;
+				var feature= {
+					"type":"Feature",
+					"geometry": geometry,
+					"properties": row.dataValues
+				}
+				geoJson.features.push(feature);
 			});
-			io.sockets.sockets[socket.id].emit('layerBina', binaGJ);*/
+			//console.log(geoJson);
+			io.sockets.sockets[socket.id].emit('drawyapi', geoJson);
 		});
 	});
 });

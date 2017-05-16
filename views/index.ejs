@@ -54,13 +54,20 @@
 	var socket=io();
 	map.on("moveend",function(){
 		<% tables.forEach(function(table){ %>
-			//<%-table%>
-			socket.emit('getyapi', map.getView().calculateExtent());
+			
+			socket.emit('get<%-table%>',map.getView().calculateExtent());
 		<% }); %>
 		//socket.emit('bbox', map.getView().calculateExtent());
 		//$("#bina").find(".circle.loading.icon").addClass("notched");
 	});
-
+	<%tables.forEach(function(table){ %>
+		socket.on('draw<%-table%>',function(data){
+			<%=table%>Features=new ol.format.GeoJSON().readFeatures(data);
+			<%=table%>Source.clear();
+			<%=table%>Source.addFeatures(<%=table%>Features);
+		});
+	<% }); %>
+	
 </script>
 
 </body>
