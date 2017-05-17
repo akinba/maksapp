@@ -24,7 +24,9 @@ var io 		= socketIO(server);
 if (os.hostname()=='raspi') {
 	var sequelize = new Sequelize("postgres://postgres:pi@localhost:5432/maks");
 } else {
-	var sequelize = new Sequelize("postgres://postgres:pi@www.akinba.com:5432/maks");
+	var sequelize = new Sequelize("postgres://postgres:pi@www.akinba.com:5432/maks"
+		//,{logging:false}
+		);
 }
 const db = {};
 db.Sequelize = Sequelize;
@@ -33,9 +35,33 @@ db.yapi = require('./models/yapi.js')(sequelize, Sequelize);
 //db.kapi = require('./models/kapi.js')(sequelize, Sequelize);
 db.sequelize.sync({force: false});
 
+
+
+
+
 //publish index page with attributes
 app.get('/',(req,res)=>{
-	res.render('index',{tables: ['yapi']});
+	res.render('index',{tables: ['yapi'], attr: ['id',
+												'kimlikno',
+												'ad',
+												'zeminustu',
+												'zeminalti',
+												'tip',
+												'durum',
+												'olcek',
+												'olusumyontemi',
+												'parselkimlikno',
+												'postakodu',
+												'sitekoopadi',
+												'aciklama',
+												'adano',
+												'parselno',
+												'paftano',
+												'geom',
+												'created_at',
+												'updated_at',
+												'deleted_at' ]
+	});
 });
 
 
@@ -66,7 +92,7 @@ io.on('connection',(socket)=>{
 				}
 				geoJson.features.push(feature);
 			});
-			//console.log(geoJson);
+			console.log(geoJson);
 			io.sockets.sockets[socket.id].emit('drawyapi', geoJson);
 		});
 	});

@@ -14,7 +14,17 @@
 </head>
 <body>
 
+
 <div id="map"></div>
+<button id="yapiCreate" style="">Tıkla</button>
+<table id="popup">
+	<% attr.forEach(function(att){ %>
+		<tr>
+			<td><%-att%>: </td>
+			<td><input type="text" name="<%-att%>"></td>
+		</tr>
+	<% }) %>
+</table>
 
 <script type="text/javascript">
 	var map = new ol.Map({
@@ -26,7 +36,7 @@
 		],
 	    view: new ol.View({
 	    	projection: 'EPSG:4326',
-	     	center: [29.06,40.97], //ol.proj.fromLonLat([26.96, 39.59]),
+	     	center: [29.107,40.966], //ol.proj.fromLonLat([26.96, 39.59]),
 	     	zoom: 18
 	    }),
 	    controls: ol.control.defaults({
@@ -50,6 +60,7 @@
     	map.addLayer(<%=table%>Layer);
     <%});%>
 </script>
+
 <script type="text/javascript">
 	var socket=io();
 	map.on("moveend",function(){
@@ -62,6 +73,7 @@
 	});
 	<%tables.forEach(function(table){ %>
 		socket.on('draw<%-table%>',function(data){
+			console.log(data);
 			<%=table%>Features=new ol.format.GeoJSON().readFeatures(data);
 			<%=table%>Source.clear();
 			<%=table%>Source.addFeatures(<%=table%>Features);
@@ -70,5 +82,30 @@
 	
 </script>
 
+<script type="text/javascript">
+	<%tables.forEach(function(table){ %>
+		var <%-table%>Draw= new ol.interaction.Draw({
+			source: <%=table%>Source,
+			type: 'Polygon'
+			//only draw when Ctrl is pressed.
+    		//condition : ol.events.condition.platformModifierKeyOnly
+		});
+		$("#<%-table%>Create").on('click',function(){
+			map.addInteraction(<%-table%>Draw);
+			<%-table%>Draw.on('drawend',function(event){
+				console.log('OK');
+					map.on( "dblclick", function (e) {
+					   if ( <%-table%>Draw ) {
+					       return false;
+					   }
+					});
+				map.removeInteraction(<%-table%>Draw);
+			});
+
+		});
+		
+	<% }); %>
+
+</script>
 </body>
 </html>
