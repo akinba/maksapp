@@ -17,7 +17,7 @@
 
 <div id="map"></div>
 <button id="yapiCreate" style="">Tıkla</button>
-<table id="popup">
+<table id="yapiTable" style="position: absolute;">
 	<% attr.forEach(function(att){ %>
 		<tr>
 			<td><%-att%>: </td>
@@ -49,6 +49,7 @@
 
 
     <% tables.forEach(function(table) { %>
+    	//Layers
     	var <%=table%>Features = new ol.Feature({});
     	var <%=table%>Source  = new ol.source.Vector({
     		features: <%=table%>Features
@@ -58,6 +59,13 @@
     		source: <%=table%>Source
     	});
     	map.addLayer(<%=table%>Layer);
+
+    	//Popups
+    	var <%=table%>Table= $("#<%=table%>Table")[0]
+    	var <%=table%>Popup = new ol.Overlay (({
+    		element: <%=table%>Table
+    	}));
+    	map.addOverlay(<%=table%>Popup);
     <%});%>
 </script>
 
@@ -100,6 +108,7 @@
 					   }
 					});
 				map.removeInteraction(<%-table%>Draw);
+				
 			});
 
 		});
